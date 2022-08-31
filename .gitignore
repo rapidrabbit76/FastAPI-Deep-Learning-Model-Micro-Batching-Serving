@@ -1,0 +1,27 @@
+
+# IDE
+.vscode/
+
+# CACHE
+**/__pycache__/**
+.pytest_cache
+.testmondata
+
+# DATASET
+**/DATASET/**
+
+# MODELS
+*.zip
+*.pt.zip
+*.pt
+*.pth
+*.onnx
+
+# LOG
+tensorboard/
+wandb/
+logs/
+log/
+
+# DEV
+debug.py

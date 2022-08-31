@@ -1,0 +1,14 @@
+
+# IDE
+.vscode/
+
+# CACHE
+**/__pycache__/**
+.pytest_cache
+.testmondata
+
+# DATASET
+**/DATASET/**
+
+# DEV
+debug.py

@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    command: uvicorn app_v1.main:app --host 0.0.0.0  --port 8000 --log-config ./log.ini
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    volumes:
+      - /home/yslee/.cache/torch:/root/.cache/torch
+      - ./log:/app/log:rw
+
+    environment:
+      DL_EMBEDDING_MODEL_PATH: model_store/embedding.zip
+      DL_CLASSIFIER_MODEL_PATH: model_store/classifier.zip
+      CLASSES_PATH: imagenet_classes.txt
+
+      CUDA_DEVICE: cuda
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ '0' ]
+              capabilities: [ gpu ]
+    healthcheck:
+      test: curl --fail http://localhost:8000/health || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 30s
+      timeout: 5s

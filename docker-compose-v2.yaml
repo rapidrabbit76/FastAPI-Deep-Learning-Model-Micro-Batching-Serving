@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  api:
+    image: ys2lee/fastapi-micro-batching-model-serving:latest
+    build: .
+    restart: unless-stopped
+    command: uvicorn app_v2.main:app --host 0.0.0.0  --workers 1 --port 8000 --log-config ./log.ini
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    volumes:
+      - ./log:/app/log:rw
+
+    environment:
+      DL_EMBEDDING_MODEL_PATH: model_store/embedding.zip
+      DL_CLASSIFIER_MODEL_PATH: model_store/classifier.zip
+      CLASSES_PATH: imagenet_classes.txt
+
+      MB_BATCH_SIZE: 256
+      MB_MAX_LATENCY: 1 # Sec
+      MB_WORKER_NUM: 1
+
+      CUDA_DEVICE: cuda
+      CUDA_DEVICES: "[0]"
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ '0' ]
+              capabilities: [ gpu ]
+    healthcheck:
+      test: curl --fail http://localhost:8000/health || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
